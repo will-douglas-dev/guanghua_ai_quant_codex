@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>中国汽车零部件投资研究 Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">IR</div>
+        <div>
+          <strong>PARTS RESEARCH</strong>
+          <span>A股汽车零部件投研</span>
+        </div>
+      </div>
+      <nav>
+        <p>DASHBOARD</p>
+        <a class="active" href="#overview"><span>◈</span>研究总览</a>
+        <p>RESEARCH PROJECTS</p>
+        <a href="#leaders"><span>◎</span>头部公司</a>
+        <a href="#chart"><span>◌</span>行情走势</a>
+        <a href="#metrics"><span>◍</span>核心指标</a>
+        <p>DATA</p>
+        <a href="#settings"><span>▣</span>Tushare 设置</a>
+        <a href="#ideas"><span>▤</span>指标建议</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <span class="live-dot"></span>
+        <span>AUTO PARTS WATCH</span>
+        <time id="clock"></time>
+      </header>
+
+      <section id="overview" class="hero">
+        <div>
+          <h1><span>⚡</span>中国汽车零部件投资研究</h1>
+          <p>跟踪 A 股头部汽车零部件公司一年股价、成交额、波动、回撤和估值观察项，辅助判断产业链景气与资金偏好。</p>
+        </div>
+        <div class="framework">FRAMEWORK: COMPANY → PRICE → LIQUIDITY → SIGNAL</div>
+      </section>
+
+      <section id="settings" class="control-panel">
+        <label>
+          公司
+          <select id="companySelect"></select>
+        </label>
+        <label>
+          Tushare Token
+          <input id="tokenInput" type="password" placeholder="可选：填入后拉取真实一年日线" autocomplete="off" />
+        </label>
+        <button id="fetchButton">拉取 Tushare 数据</button>
+        <button id="sampleButton" class="ghost">使用样例数据</button>
+      </section>
+
+      <section class="metric-grid" id="metrics">
+        <article class="metric-card">
+          <small>一年收益率</small>
+          <strong id="returnMetric">--</strong>
+          <span id="returnSignal">PRICE TREND</span>
+          <footer>近一年收盘价变化</footer>
+        </article>
+        <article class="metric-card">
+          <small>最大回撤</small>
+          <strong id="drawdownMetric">--</strong>
+          <span class="warn">RISK</span>
+          <footer>期间峰值到低点</footer>
+        </article>
+        <article class="metric-card">
+          <small>平均成交额</small>
+          <strong id="amountMetric">--</strong>
+          <span>LIQ</span>
+          <footer>日均成交额，亿元</footer>
+        </article>
+        <article class="metric-card">
+          <small>波动率</small>
+          <strong id="volMetric">--</strong>
+          <span class="hot">VOL</span>
+          <footer>日涨跌幅年化估算</footer>
+        </article>
+      </section>
+
+      <section id="chart" class="chart-section">
+        <div class="section-title">
+          <div>
+            <small>PRICE ACTION</small>
+            <h2 id="chartTitle">一年股价走势</h2>
+          </div>
+          <span id="dataStatus">待加载</span>
+        </div>
+        <canvas id="priceChart" width="1200" height="440"></canvas>
+      </section>
+
+      <section id="leaders" class="leaders-section">
+        <div class="section-title">
+          <div>
+            <small>LEADING A-SHARE NAMES</small>
+            <h2>建议纳入观察池的头部公司</h2>
+          </div>
+        </div>
+        <div id="leaderGrid" class="leader-grid"></div>
+      </section>
+
+      <section id="ideas" class="insight-panel">
+        <small>当前阶段判断</small>
+        <h2 id="stageTitle">等待数据</h2>
+        <p id="stageCopy">选择公司并拉取数据后，将根据收益、回撤、成交活跃度和波动给出初步判断。</p>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
