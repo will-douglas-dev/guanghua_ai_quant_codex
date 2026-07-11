@@ -1,0 +1,83 @@
+{
+  "generated_at": "2026-07-04T08:45:08.689Z",
+  "source": "Tushare daily",
+  "start_date": "20210704",
+  "end_date": "20260704",
+  "fields": [
+    "company_name",
+    "ts_code",
+    "trade_date",
+    "open",
+    "high",
+    "low",
+    "close",
+    "pre_close",
+    "change",
+    "pct_chg",
+    "vol",
+    "amount"
+  ],
+  "companies": [
+    {
+      "company_name": "福耀玻璃",
+      "ts_code": "600660.SH",
+      "rows": 1211,
+      "file": "600660.SH_福耀玻璃_daily_5y.csv"
+    },
+    {
+      "company_name": "华域汽车",
+      "ts_code": "600741.SH",
+      "rows": 1211,
+      "file": "600741.SH_华域汽车_daily_5y.csv"
+    },
+    {
+      "company_name": "拓普集团",
+      "ts_code": "601689.SH",
+      "rows": 1211,
+      "file": "601689.SH_拓普集团_daily_5y.csv"
+    },
+    {
+      "company_name": "星宇股份",
+      "ts_code": "601799.SH",
+      "rows": 1211,
+      "file": "601799.SH_星宇股份_daily_5y.csv"
+    },
+    {
+      "company_name": "伯特利",
+      "ts_code": "603596.SH",
+      "rows": 1211,
+      "file": "603596.SH_伯特利_daily_5y.csv"
+    },
+    {
+      "company_name": "保隆科技",
+      "ts_code": "603197.SH",
+      "rows": 1211,
+      "file": "603197.SH_保隆科技_daily_5y.csv"
+    },
+    {
+      "company_name": "银轮股份",
+      "ts_code": "002126.SZ",
+      "rows": 1211,
+      "file": "002126.SZ_银轮股份_daily_5y.csv"
+    },
+    {
+      "company_name": "旭升集团",
+      "ts_code": "603305.SH",
+      "rows": 1204,
+      "file": "603305.SH_旭升集团_daily_5y.csv"
+    },
+    {
+      "company_name": "德赛西威",
+      "ts_code": "002920.SZ",
+      "rows": 1211,
+      "file": "002920.SZ_德赛西威_daily_5y.csv"
+    },
+    {
+      "company_name": "中鼎股份",
+      "ts_code": "000887.SZ",
+      "rows": 1211,
+      "file": "000887.SZ_中鼎股份_daily_5y.csv"
+    }
+  ],
+  "combined_file": "all_companies_daily_5y.csv"
+}
