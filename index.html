@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TASK4 海龟交易策略实现与分析</title>
+    <title>TASK3 双均线策略实现与分析</title>
     <style>
       :root {
         color-scheme: light;
@@ -358,8 +358,8 @@
   </head>
   <body>
     <header class="app-header">
-      <h1>海龟交易策略回测看板</h1>
-      <span class="badge" id="paramBadge">TURTLE(--)</span>
+      <h1>🎯 双均线策略回测看板</h1>
+      <span class="badge" id="paramBadge">SMA(--,--)</span>
       <span class="badge" id="dataBadge">读取本地数据</span>
     </header>
 
@@ -367,7 +367,7 @@
       <aside>
         <div class="control-grid">
           <section class="group">
-            <p class="group-title">标的选择</p>
+            <p class="group-title">📌 标的选择</p>
             <label>
               股票
               <select id="companySelect"></select>
@@ -376,7 +376,7 @@
           </section>
 
           <section class="group">
-            <p class="group-title">时间窗口</p>
+            <p class="group-title">📅 时间窗口</p>
             <label>
               起始日期
               <input id="startDate" type="date" />
@@ -388,35 +388,31 @@
           </section>
 
           <section class="group">
-            <p class="group-title">海龟参数</p>
+            <p class="group-title">📏 均线参数</p>
             <label>
-              通道周期
+              短周期 SMA
               <div class="range-row">
-                <span>10</span>
-                <input id="shortWindow" type="range" min="10" max="80" value="20" />
-                <strong id="shortValue">20</strong>
+                <span>2</span>
+                <input id="shortWindow" type="range" min="2" max="30" value="5" />
+                <strong id="shortValue">5</strong>
               </div>
             </label>
             <label>
-              ATR 周期
+              长周期 SMA
               <div class="range-row">
-                <span>5</span>
-                <input id="longWindow" type="range" min="5" max="40" value="20" />
-                <strong id="longValue">20</strong>
+                <span>10</span>
+                <input id="longWindow" type="range" min="10" max="90" value="15" />
+                <strong id="longValue">15</strong>
               </div>
             </label>
             <button id="resetButton">重置默认参数</button>
           </section>
 
           <section class="group">
-            <p class="group-title">回测假设</p>
+            <p class="group-title">💸 回测假设</p>
             <label>
               初始资金
               <input id="initialCapital" type="number" min="10000" step="10000" value="100000" />
-            </label>
-            <label>
-              止损倍数 ATR
-              <input id="stopMultiplier" type="number" min="1" max="5" step="0.5" value="2" />
             </label>
             <div class="switch-row">
               <span>手续费 0.1%</span>
@@ -426,11 +422,11 @@
               <span>滑点 0.05%</span>
               <input id="slippageToggle" type="checkbox" />
             </div>
-            <p class="side-note">信号使用前一日已经形成的通道和 ATR，下一交易日持仓生效，避免未来数据偏差。</p>
+            <p class="side-note">信号在收盘后产生，下一交易日持仓生效，用 <b>Position.shift(1)</b> 避免未来数据偏差。</p>
           </section>
 
           <section class="group">
-            <p class="group-title">策略指标</p>
+            <p class="group-title">📊 策略指标</p>
             <div class="metric-list">
               <div><span>买入信号</span><b id="buyCount">--</b></div>
               <div><span>卖出信号</span><b id="sellCount">--</b></div>
@@ -444,8 +440,8 @@
       <main>
         <section class="hero">
           <div>
-            <h2>TASK4：用海龟法则捕捉价格趋势突破</h2>
-            <p>基于前序任务保存的 Tushare 5 年日线数据，完成高低点通道、ATR、止损规则、交易信号、模拟回测和参数比较。</p>
+            <h2>TASK3：用均线交叉反映市场趋势变化</h2>
+            <p>基于前序任务保存的 Tushare 5 年日线数据，完成双均线策略信号识别、模拟交易、绩效评估和参数比较。</p>
           </div>
           <span class="status" id="runStatus">正在初始化...</span>
         </section>
@@ -476,7 +472,7 @@
         <section class="card chart-card">
           <div class="chart-title">
             <h3>图1 策略净值 vs 买入持有基准</h3>
-            <span>红线：海龟策略；灰色虚线：买入并持有</span>
+            <span>红线：双均线策略；灰色虚线：买入并持有</span>
           </div>
           <canvas id="equityChart" aria-label="策略净值与买入持有净值曲线"></canvas>
         </section>
@@ -491,10 +487,10 @@
           </article>
           <article class="card chart-card">
             <div class="chart-title">
-              <h3>图3 股价、高低通道与买卖点</h3>
-              <span>突破高点通道买入，跌破低点通道或触发 ATR 止损卖出</span>
+              <h3>图3 价格、均线与买卖点</h3>
+              <span>金叉买入，死叉卖出</span>
             </div>
-            <canvas id="signalChart" aria-label="股价、高低点通道和买卖信号"></canvas>
+            <canvas id="signalChart" aria-label="股价、均线和买卖信号"></canvas>
           </article>
         </section>
 
@@ -523,41 +519,20 @@
           </article>
 
           <article class="card text-card">
-            <h3>核心思想与关键优势</h3>
+            <h3>报告写作方案</h3>
             <ol>
-              <li>海龟策略本质是趋势跟踪：价格突破过去 N 日高点时认为趋势启动，入场后尽量持有趋势。</li>
-              <li>它把入场、离场和止损全部规则化，减少主观判断，便于程序化执行和复盘。</li>
-              <li>ATR 用于衡量市场波动，使止损距离能随行情波动自动调整。</li>
-              <li>优势在于能抓住中长期单边行情；缺点是在震荡市中容易连续假突破。</li>
+              <li>解释移动平均线、金叉和死叉：短均线上穿长均线买入，下穿长均线卖出。</li>
+              <li>说明回测指标：累计回报回答最终收益，最大回撤回答过程风险，夏普比率衡量单位风险收益。</li>
+              <li>展示本页三张图，每张图在 PDF 中保留“图号 + 标题 + 解读”。</li>
+              <li>比较不同股票和参数组合，总结趋势市场有效、震荡市场容易反复交易的适用边界。</li>
             </ol>
-          </article>
-
-          <article class="card text-card">
-            <h3>关键概念</h3>
-            <ul>
-              <li>高点通道：过去 N 个交易日最高价的最大值，用作突破买入线。</li>
-              <li>低点通道：过去 N 个交易日最低价的最小值，用作趋势失败后的离场线。</li>
-              <li>真实波幅 TR：同时考虑当日高低价差、当日高点到前收盘、当日低点到前收盘的最大波动。</li>
-              <li>ATR：TR 的移动平均值，用来描述近期平均波动幅度。</li>
-              <li>止损条件：本页使用移动止损线，即持仓后价格跌破“最高保护价 - 止损倍数 × ATR”则卖出。</li>
-            </ul>
-          </article>
-
-          <article class="card text-card">
-            <h3>参数调节心得</h3>
-            <ul>
-              <li>通道周期越短，买卖信号越敏感，适合短期趋势，但更容易被噪声干扰。</li>
-              <li>通道周期越长，信号更少、更稳健，但可能错过趋势初期利润。</li>
-              <li>止损倍数越小，回撤控制更紧，但容易被正常波动洗出；倍数越大，能容忍波动，但单笔亏损可能扩大。</li>
-              <li>更适合波动扩张、趋势持续、基本面预期一致的标的；不适合长期横盘、成交稀疏或频繁跳空的行情。</li>
-            </ul>
           </article>
 
           <article class="card text-card">
             <h3>回测假设</h3>
             <ul>
               <li>仅做多，不做空；空仓时资金不计利息。</li>
-              <li>使用前一日已经形成的通道和 ATR 判断信号，下一交易日按持仓状态计算收益。</li>
+              <li>使用收盘价生成均线信号，下一交易日按持仓状态计算收益。</li>
               <li>手续费和滑点可在左侧开关控制；默认手续费为单次换仓 0.1%。</li>
               <li>未考虑停牌、涨跌停无法成交、税费和复权差异，结论用于课程作业研究展示。</li>
             </ul>
@@ -568,12 +543,7 @@
 
     <script>
       const DATA_DIR = "data/tushare_daily_5y_20210704_20260704/";
-      const PARAM_SETS = [
-        { channel: 20, atr: 20, stop: 2 },
-        { channel: 55, atr: 20, stop: 2 },
-        { channel: 20, atr: 14, stop: 2 },
-        { channel: 20, atr: 20, stop: 3 }
-      ];
+      const PARAM_SETS = [[5, 15], [10, 30], [20, 60]];
       const state = {
         manifest: null,
         rowsByCode: new Map(),
@@ -591,7 +561,6 @@
         costToggle: document.querySelector("#costToggle"),
         slippageToggle: document.querySelector("#slippageToggle"),
         initialCapital: document.querySelector("#initialCapital"),
-        stopMultiplier: document.querySelector("#stopMultiplier"),
         runStatus: document.querySelector("#runStatus")
       };
 
@@ -629,8 +598,7 @@
           els.longWindow,
           els.costToggle,
           els.slippageToggle,
-          els.initialCapital,
-          els.stopMultiplier
+          els.initialCapital
         ].forEach((node) => node.addEventListener("input", update));
         els.select.addEventListener("change", async () => {
           await loadCompany(els.select.value);
@@ -640,9 +608,8 @@
           update();
         });
         document.querySelector("#resetButton").addEventListener("click", () => {
-          els.shortWindow.value = 20;
-          els.longWindow.value = 20;
-          els.stopMultiplier.value = 2;
+          els.shortWindow.value = 5;
+          els.longWindow.value = 15;
           els.costToggle.checked = true;
           els.slippageToggle.checked = false;
           els.initialCapital.value = 100000;
@@ -683,50 +650,45 @@
 
       function update() {
         if (!state.currentRows.length) return;
-        const channelWindow = Number(els.shortWindow.value);
-        const atrWindow = Number(els.longWindow.value);
-        const stopMultiplier = Number(els.stopMultiplier.value || 2);
-        const warmupWindow = Math.max(channelWindow, atrWindow);
-        els.shortValue.textContent = channelWindow;
-        els.longValue.textContent = atrWindow;
-        document.querySelector("#paramBadge").textContent = `TURTLE(${channelWindow}, ATR${atrWindow}, ${stopMultiplier}N)`;
+        let shortWindow = Number(els.shortWindow.value);
+        let longWindow = Number(els.longWindow.value);
+        if (shortWindow >= longWindow) {
+          longWindow = shortWindow + 5;
+          els.longWindow.value = Math.min(longWindow, Number(els.longWindow.max));
+        }
+        shortWindow = Number(els.shortWindow.value);
+        longWindow = Number(els.longWindow.value);
+        els.shortValue.textContent = shortWindow;
+        els.longValue.textContent = longWindow;
+        document.querySelector("#paramBadge").textContent = `SMA(${shortWindow},${longWindow})`;
 
         const filtered = state.currentRows.filter((row) => (
           row.date >= fromInputDate(els.startDate.value) && row.date <= fromInputDate(els.endDate.value)
         ));
-        if (filtered.length <= warmupWindow + 5) {
-          els.runStatus.textContent = "时间窗口过短，无法完成当前海龟策略回测。";
+        if (filtered.length <= longWindow + 5) {
+          els.runStatus.textContent = "时间窗口过短，无法完成当前均线回测。";
           return;
         }
 
         const cost = (els.costToggle.checked ? 0.001 : 0) + (els.slippageToggle.checked ? 0.0005 : 0);
-        const result = backtest(filtered, channelWindow, atrWindow, stopMultiplier, cost);
+        const result = backtest(filtered, shortWindow, longWindow, cost);
         const metrics = result.metrics;
         renderMetrics(metrics, filtered, cost);
         drawEquity(result.rows);
         drawDrawdown(result.rows);
         drawSignal(result.rows);
         renderComparison(filtered, cost);
-        renderRead(metrics, channelWindow, atrWindow, stopMultiplier);
+        renderRead(metrics, shortWindow, longWindow);
         els.runStatus.textContent = `${filtered[0].name} ${formatDateText(filtered[0].date)} 至 ${formatDateText(filtered[filtered.length - 1].date)}，样本 ${filtered.length} 个交易日`;
         document.querySelector("#coverageNote").textContent = `${filtered[0].code} · CNY · ${filtered.length} 个交易日`;
       }
 
-      function backtest(rows, channelWindow, atrWindow, stopMultiplier, costRate) {
+      function backtest(rows, shortWindow, longWindow, costRate) {
         const out = rows.map((row, index) => {
-          const previousRows = rows.slice(0, index);
-          const channelRows = previousRows.slice(-channelWindow);
-          const highChannel = channelRows.length === channelWindow ? Math.max(...channelRows.map((item) => item.high)) : NaN;
-          const lowChannel = channelRows.length === channelWindow ? Math.min(...channelRows.map((item) => item.low)) : NaN;
-          const trueRange = index === 0
-            ? row.high - row.low
-            : Math.max(row.high - row.low, Math.abs(row.high - rows[index - 1].close), Math.abs(row.low - rows[index - 1].close));
-          return { ...row, highChannel, lowChannel, trueRange, atr: NaN, position: 0, signal: 0, stopPrice: NaN };
-        });
-
-        out.forEach((row, index) => {
-          const atrRows = out.slice(Math.max(0, index + 1 - atrWindow), index + 1);
-          if (atrRows.length === atrWindow) row.atr = average(atrRows.map((item) => item.trueRange));
+          const shortMa = index + 1 >= shortWindow ? average(rows.slice(index + 1 - shortWindow, index + 1).map((item) => item.close)) : NaN;
+          const longMa = index + 1 >= longWindow ? average(rows.slice(index + 1 - longWindow, index + 1).map((item) => item.close)) : NaN;
+          const position = Number.isFinite(shortMa) && Number.isFinite(longMa) && shortMa > longMa ? 1 : 0;
+          return { ...row, shortMa, longMa, position };
         });
 
         let strategyValue = 1;
@@ -737,40 +699,13 @@
         let troughDate = out[0].date;
         const trades = [];
         let openTrade = null;
-        let position = 0;
-        let entryPrice = NaN;
-        let trailingStop = NaN;
-
-        out.forEach((row) => {
-          const canTrade = Number.isFinite(row.highChannel) && Number.isFinite(row.lowChannel) && Number.isFinite(row.atr);
-          if (position === 0 && canTrade && row.close > row.highChannel) {
-            position = 1;
-            entryPrice = row.close;
-            trailingStop = row.close - stopMultiplier * row.atr;
-            row.signal = 1;
-          } else if (position === 1) {
-            const candidateStop = canTrade ? row.close - stopMultiplier * row.atr : trailingStop;
-            if (Number.isFinite(candidateStop)) trailingStop = Math.max(trailingStop, candidateStop);
-            const channelExit = canTrade && row.close < row.lowChannel;
-            const atrStopExit = Number.isFinite(trailingStop) && row.close < trailingStop;
-            if (channelExit || atrStopExit) {
-              position = 0;
-              row.signal = -1;
-              row.exitReason = atrStopExit ? "ATR止损" : "跌破低点通道";
-              trailingStop = NaN;
-              entryPrice = NaN;
-            }
-          }
-          row.position = position;
-          row.entryPrice = entryPrice;
-          row.stopPrice = position ? trailingStop : NaN;
-        });
 
         out.forEach((row, index) => {
           const prev = out[index - 1];
           const prevPosition = prev ? prev.position : 0;
           const marketReturn = prev ? row.close / prev.close - 1 : 0;
           const turnover = prev ? Math.abs(row.position - prev.position) : 0;
+          row.signal = prev ? row.position - prev.position : 0;
           row.marketReturn = marketReturn;
           row.strategyReturn = prevPosition * marketReturn - turnover * costRate;
           strategyValue *= 1 + row.strategyReturn;
@@ -795,11 +730,6 @@
 
         const dailyReturns = out.slice(1).map((row) => row.strategyReturn);
         const std = standardDeviation(dailyReturns);
-        const sellReasons = out.filter((row) => row.signal === -1).reduce((acc, row) => {
-          const reason = row.exitReason || "跌破低点通道";
-          acc[reason] = (acc[reason] || 0) + 1;
-          return acc;
-        }, {});
         const metrics = {
           cumulativeReturn: out[out.length - 1].strategyValue - 1,
           buyHoldReturn: out[out.length - 1].buyHoldValue - 1,
@@ -810,7 +740,6 @@
           buyCount: out.filter((row) => row.signal === 1).length,
           sellCount: out.filter((row) => row.signal === -1).length,
           holdDays: out.filter((row) => row.position === 1).length,
-          sellReasons,
           trades,
           winRate: trades.length ? trades.filter((trade) => trade.return > 0).length / trades.length : NaN,
           initialCapital: Number(els.initialCapital.value || 100000),
@@ -842,10 +771,10 @@
       }
 
       function renderComparison(rows, cost) {
-        document.querySelector("#comparisonBody").innerHTML = PARAM_SETS.map((params) => {
-          const metrics = backtest(rows, params.channel, params.atr, params.stop, cost).metrics;
+        document.querySelector("#comparisonBody").innerHTML = PARAM_SETS.map(([shortWindow, longWindow]) => {
+          const metrics = backtest(rows, shortWindow, longWindow, cost).metrics;
           return `<tr>
-            <td>${params.channel}日/ATR${params.atr}/${params.stop}N</td>
+            <td>SMA(${shortWindow},${longWindow})</td>
             <td>${formatPercent(metrics.cumulativeReturn)}</td>
             <td>${formatPercent(metrics.maxDrawdown)}</td>
             <td>${Number.isFinite(metrics.sharpe) ? metrics.sharpe.toFixed(3) : "--"}</td>
@@ -854,13 +783,12 @@
         }).join("");
       }
 
-      function renderRead(metrics, channelWindow, atrWindow, stopMultiplier) {
+      function renderRead(metrics, shortWindow, longWindow) {
         const beat = metrics.cumulativeReturn > metrics.buyHoldReturn;
         const trendText = beat ? "本组参数跑赢买入持有基准" : "本组参数未跑赢买入持有基准";
         const riskText = metrics.maxDrawdown > -0.15 ? "回撤控制相对温和" : metrics.maxDrawdown > -0.3 ? "回撤处于中等水平" : "回撤压力较大";
-        const freqText = metrics.buyCount >= 10 ? "信号较多，说明标的可能存在多次假突破" : "交易频率较低，信号更偏趋势确认";
-        const stopCount = metrics.sellReasons["ATR止损"] || 0;
-        document.querySelector("#strategyRead").textContent = `当前 ${channelWindow} 日通道、ATR${atrWindow}、${stopMultiplier}N 止损的海龟策略累计回报为 ${formatPercent(metrics.cumulativeReturn)}，买入持有为 ${formatPercent(metrics.buyHoldReturn)}，${trendText}；最大回撤为 ${formatPercent(metrics.maxDrawdown)}，${riskText}；期间产生 ${metrics.buyCount} 次买入和 ${metrics.sellCount} 次卖出，其中 ${stopCount} 次由 ATR 止损触发，${freqText}。报告中可据此说明：海龟法则适合趋势持续、波动扩张的行情，但在横盘震荡中容易出现突破后快速回落。`;
+        const freqText = metrics.buyCount >= 12 ? "信号较多，说明策略更容易受到短期波动干扰" : "交易频率较低，信号更偏趋势确认";
+        document.querySelector("#strategyRead").textContent = `当前 SMA(${shortWindow},${longWindow}) 的策略累计回报为 ${formatPercent(metrics.cumulativeReturn)}，买入持有为 ${formatPercent(metrics.buyHoldReturn)}，${trendText}；最大回撤为 ${formatPercent(metrics.maxDrawdown)}，${riskText}；期间产生 ${metrics.buyCount} 次买入信号和 ${metrics.sellCount} 次卖出信号，${freqText}。报告中可据此说明：双均线适合趋势持续的行情，但在震荡市中容易出现频繁金叉、死叉和无效交易。`;
       }
 
       function drawEquity(rows) {
@@ -879,9 +807,8 @@
       function drawSignal(rows) {
         drawLineChart(charts.signal, rows, [
           { key: "close", label: "收盘价", color: "#6f747c", width: 1.4 },
-          { key: "highChannel", label: "高点通道", color: "#e73545", width: 1.6 },
-          { key: "lowChannel", label: "低点通道", color: "#12956f", width: 1.6 },
-          { key: "stopPrice", label: "ATR止损", color: "#ef9b3a", width: 1.2, dashed: true }
+          { key: "shortMa", label: "短均线", color: "#ef9b3a", width: 1.8 },
+          { key: "longMa", label: "长均线", color: "#2e86c9", width: 1.8 }
         ], { markers: true });
       }
 
